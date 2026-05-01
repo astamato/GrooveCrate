@@ -3,14 +3,16 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.ktlint)
 }
 
 android {
     namespace = "com.example.myapplication"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+        version =
+            release(36) {
+                minorApiLevel = 1
+            }
     }
 
     defaultConfig {
@@ -29,10 +31,10 @@ android {
         }
         val geminiApiKey = properties.getProperty("GEMINI_API_KEY") ?: ""
         buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
-        
+
         val discogsToken = properties.getProperty("DISCOGS_TOKEN") ?: ""
         buildConfigField("String", "DISCOGS_TOKEN", "\"$discogsToken\"")
-        
+
         val discogsUsername = properties.getProperty("DISCOGS_USERNAME") ?: ""
         buildConfigField("String", "DISCOGS_USERNAME", "\"$discogsUsername\"")
     }
@@ -42,7 +44,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

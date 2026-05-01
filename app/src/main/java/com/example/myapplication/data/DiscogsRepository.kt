@@ -13,22 +13,28 @@ class DiscogsRepository {
     private val userAgent = "RecordInventoryApp/1.0"
 
     private val api: DiscogsApiService by lazy {
-        val logging = HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
-        }
-        
-        val client = OkHttpClient.Builder()
-            .addInterceptor(logging)
-            .addInterceptor { chain ->
-                val request = chain.request().newBuilder()
-                    .addHeader("User-Agent", userAgent)
-                    .addHeader("Authorization", "Discogs token=$token")
-                    .build()
-                chain.proceed(request)
+        val logging =
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
             }
-            .build()
 
-        Retrofit.Builder()
+        val client =
+            OkHttpClient
+                .Builder()
+                .addInterceptor(logging)
+                .addInterceptor { chain ->
+                    val request =
+                        chain
+                            .request()
+                            .newBuilder()
+                            .addHeader("User-Agent", userAgent)
+                            .addHeader("Authorization", "Discogs token=$token")
+                            .build()
+                    chain.proceed(request)
+                }.build()
+
+        Retrofit
+            .Builder()
             .baseUrl("https://api.discogs.com/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
@@ -36,7 +42,10 @@ class DiscogsRepository {
             .create(DiscogsApiService::class.java)
     }
 
-    suspend fun searchAndAdd(artist: String?, title: String?): Result<String> {
+    suspend fun searchAndAdd(
+        artist: String?,
+        title: String?,
+    ): Result<String> {
         if (token.isEmpty() || token == "YOUR_DISCOGS_TOKEN_HERE") {
             return Result.failure(Exception("Discogs Token missing in local.properties"))
         }
@@ -50,8 +59,9 @@ class DiscogsRepository {
                 return Result.failure(Exception("Search failed: ${searchResponse.code()}"))
             }
 
-            val result = searchResponse.body()?.results?.firstOrNull()
-                ?: return Result.failure(Exception("No matching record found on Discogs"))
+            val result =
+                searchResponse.body()?.results?.firstOrNull()
+                    ?: return Result.failure(Exception("No matching record found on Discogs"))
 
             val addResponse = api.addReleaseToCollection(username, 1, result.id)
             if (addResponse.isSuccessful) {

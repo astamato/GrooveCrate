@@ -11,7 +11,7 @@ import kotlinx.coroutines.withContext
 data class IdentifiedRecord(
     val artist: String?,
     val album: String?,
-    val rawResult: String
+    val rawResult: String,
 )
 
 class RecordIdentifier {
@@ -28,17 +28,21 @@ class RecordIdentifier {
 
             for (modelName in modelsToTry) {
                 try {
-                    val generativeModel = GenerativeModel(
-                        modelName = modelName,
-                        apiKey = apiKey
-                    )
+                    val generativeModel =
+                        GenerativeModel(
+                            modelName = modelName,
+                            apiKey = apiKey,
+                        )
 
-                    val inputContent = content {
-                        image(bitmap)
-                        text("Identify this vinyl record cover. Return the Artist and Album title. " +
-                                "Format the output as JSON with 'artist' and 'album' keys. " +
-                                "If you are not sure, give your best guess.")
-                    }
+                    val inputContent =
+                        content {
+                            image(bitmap)
+                            text(
+                                "Identify this vinyl record cover. Return the Artist and Album title. " +
+                                    "Format the output as JSON with 'artist' and 'album' keys. " +
+                                    "If you are not sure, give your best guess.",
+                            )
+                        }
 
                     val response = generativeModel.generateContent(inputContent)
                     val text = response.text
@@ -51,7 +55,10 @@ class RecordIdentifier {
                 } catch (e: Exception) {
                     lastError = e.message ?: "Unknown error"
                     Log.w("RecordIdentifier", "Failed with $modelName: $lastError")
-                    if (!lastError.contains("404") && !lastError.contains("not found") && !lastError.contains("available")) {
+                    if (!lastError.contains("404") &&
+                        !lastError.contains("not found") &&
+                        !lastError.contains("available")
+                    ) {
                         break
                     }
                 }
@@ -60,7 +67,10 @@ class RecordIdentifier {
         }
     }
 
-    private fun extractJsonField(json: String, field: String): String? {
+    private fun extractJsonField(
+        json: String,
+        field: String,
+    ): String? {
         val pattern = "\"$field\"\\s*:\\s*\"([^\"]+)\"".toRegex()
         return pattern.find(json)?.groupValues?.get(1)
     }

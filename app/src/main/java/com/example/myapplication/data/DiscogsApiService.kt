@@ -11,13 +11,13 @@ interface DiscogsApiService {
     suspend fun searchRelease(
         @Query("artist") artist: String?,
         @Query("release_title") title: String?,
-        @Query("type") type: String = "release"
+        @Query("type") type: String = "release",
     ): Response<DiscogsSearchResponse>
 
     @POST("users/{username}/collection/folders/{folderId}/releases/{releaseId}")
     suspend fun addReleaseToCollection(
         @Path("username") username: String,
         @Path("folderId") folderId: Int,
-        @Path("releaseId") releaseId: Long
+        @Path("releaseId") releaseId: Long,
     ): Response<AddToCollectionResponse>
 }

@@ -13,6 +13,7 @@ camerax = "1.6.0-alpha01"
 googleAi = "0.9.0"
 retrofit = "2.9.0"
 okhttp = "4.11.0"
+ktlint = "14.2.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,4 +44,5 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 

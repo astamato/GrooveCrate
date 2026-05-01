@@ -12,7 +12,7 @@ object CameraUtils {
     fun takePhoto(
         imageCapture: ImageCapture,
         executor: ExecutorService,
-        onImageCaptured: (Bitmap) -> Unit
+        onImageCaptured: (Bitmap) -> Unit,
     ) {
         imageCapture.takePicture(
             executor,
@@ -29,7 +29,7 @@ object CameraUtils {
                 override fun onError(exception: ImageCaptureException) {
                     Log.e("CameraUtils", "Photo capture failed: ${exception.message}", exception)
                 }
-            }
+            },
         )
     }
 }

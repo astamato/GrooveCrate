@@ -8,11 +8,28 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
@@ -39,7 +56,7 @@ fun CameraContent(cameraExecutor: ExecutorService) {
     var isIdentifying by remember { mutableStateOf(false) }
     var isAddingToDiscogs by remember { mutableStateOf(false) }
     var discogsResult by remember { mutableStateOf<String?>(null) }
-    
+
     val scope = rememberCoroutineScope()
     val recordIdentifier = remember { RecordIdentifier() }
     val discogsRepository = remember { DiscogsRepository() }
@@ -48,9 +65,10 @@ fun CameraContent(cameraExecutor: ExecutorService) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build().also {
-                it.setSurfaceProvider(previewView.surfaceProvider)
-            }
+            val preview =
+                Preview.Builder().build().also {
+                    it.setSurfaceProvider(previewView.surfaceProvider)
+                }
 
             try {
                 cameraProvider.unbindAll()
@@ -58,7 +76,7 @@ fun CameraContent(cameraExecutor: ExecutorService) {
                     lifecycleOwner,
                     CameraSelector.DEFAULT_BACK_CAMERA,
                     preview,
-                    imageCapture
+                    imageCapture,
                 )
             } catch (exc: Exception) {
                 Log.e("CameraContent", "Use case binding failed", exc)
@@ -81,27 +99,30 @@ fun CameraContent(cameraExecutor: ExecutorService) {
                             }
                         }
                     },
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(16.dp),
                 ) {
                     Text("Take Photo")
                 }
             }
         } else {
             Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(16.dp)
+                        .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Image(
                     bitmap = capturedImage!!.asImageBitmap(),
                     contentDescription = "Captured Image",
-                    modifier = Modifier
-                        .height(300.dp)
-                        .fillMaxWidth()
+                    modifier =
+                        Modifier
+                            .height(300.dp)
+                            .fillMaxWidth(),
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 if (isIdentifying) {
@@ -110,15 +131,23 @@ fun CameraContent(cameraExecutor: ExecutorService) {
                 } else if (identifiedRecord != null) {
                     val record = identifiedRecord!!
                     Text(
-                        text = if (record.artist != null && record.album != null) 
-                                "${record.artist} - ${record.album}" 
-                               else record.rawResult,
+                        text =
+                            if (record.artist != null && record.album != null) {
+                                "${record.artist} - ${record.album}"
+                            } else {
+                                record.rawResult
+                            },
                         style = MaterialTheme.typography.headlineSmall,
-                        color = if (record.artist == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                        color =
+                            if (record.artist == null) {
+                                MaterialTheme.colorScheme.error
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     if (isAddingToDiscogs) {
                         CircularProgressIndicator()
                         Text("Adding to Discogs...")
@@ -141,7 +170,7 @@ fun CameraContent(cameraExecutor: ExecutorService) {
                                 Text("Retake")
                             }
                             Spacer(modifier = Modifier.width(8.dp))
-                            
+
                             if (record.artist != null && record.album != null) {
                                 Button(onClick = {
                                     scope.launch {
