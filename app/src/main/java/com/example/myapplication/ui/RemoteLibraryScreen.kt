@@ -1,7 +1,6 @@
 package com.example.myapplication.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -10,19 +9,22 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
+import com.example.myapplication.data.BasicInformation
 import com.example.myapplication.data.CollectionRelease
+import com.example.myapplication.ui.theme.MyApplicationTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +34,8 @@ fun RemoteLibraryScreen(
     hasMore: Boolean,
     onBack: () -> Unit,
     onLoadMore: () -> Unit,
-    onRefresh: () -> Unit
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
     
@@ -43,6 +46,7 @@ fun RemoteLibraryScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("DISCOGS LIBRARY", letterSpacing = 2.sp, fontWeight = FontWeight.Bold) },
@@ -104,8 +108,9 @@ fun RemoteLibraryScreen(
 }
 
 @Composable
-fun RemoteInventoryItem(record: CollectionRelease) {
+fun RemoteInventoryItem(record: CollectionRelease, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -149,5 +154,35 @@ fun RemoteInventoryItem(record: CollectionRelease) {
                 }
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun RemoteLibraryScreenPreview() {
+    MyApplicationTheme {
+        RemoteLibraryScreen(
+            records = listOf(
+                CollectionRelease(
+                    id = 1,
+                    instance_id = 1,
+                    folder_id = 1,
+                    rating = 5,
+                    basic_information = BasicInformation(
+                        id = 1,
+                        title = "Rumours",
+                        year = 1977,
+                        thumb = null,
+                        cover_image = null,
+                        artists = listOf()
+                    )
+                )
+            ),
+            isLoading = false,
+            hasMore = false,
+            onBack = {},
+            onLoadMore = {},
+            onRefresh = {}
+        )
     }
 }

@@ -30,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -39,18 +40,21 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.data.DiscogsRepository
 import com.example.myapplication.data.RecordIdentifier
 import com.example.myapplication.data.ScannedRecord
+import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.util.BarcodeAnalyzer
 import com.example.myapplication.util.CameraUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 @Composable
 fun CameraContent(
     cameraExecutor: ExecutorService,
     viewModel: MainViewModel,
     onBack: () -> Unit,
-    onViewInventory: () -> Unit
+    onViewInventory: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -123,7 +127,7 @@ fun CameraContent(
     }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color.Black),
     ) {
@@ -214,8 +218,9 @@ private fun CameraOverlay(
     onClose: () -> Unit,
     onTakePhoto: () -> Unit,
     onViewInventory: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier.fillMaxSize()) {
         // Top Bar
         Row(
             modifier =
@@ -327,10 +332,11 @@ private fun CameraOverlay(
 private fun ModeButton(
     text: String,
     active: Boolean,
+    modifier: Modifier = Modifier
 ) {
     Box(
         modifier =
-            Modifier
+            modifier
                 .clip(RoundedCornerShape(16.dp))
                 .background(if (active) Color.White else Color.Transparent)
                 .padding(horizontal = 16.dp, vertical = 6.dp),
@@ -368,5 +374,24 @@ private fun Modifier.drawBehindCorner(
     if (bottomRight) {
         drawLine(color, Offset(size.width, size.height), Offset(0f, size.height), s)
         drawLine(color, Offset(size.width, size.height), Offset(size.width, 0f), s)
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun CameraContentPreview() {
+    MyApplicationTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black)
+        ) {
+            CameraOverlay(
+                itemCount = 3,
+                onClose = {},
+                onTakePhoto = {},
+                onViewInventory = {}
+            )
+        }
     }
 }

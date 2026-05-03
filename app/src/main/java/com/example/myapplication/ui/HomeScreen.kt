@@ -1,12 +1,8 @@
 package com.example.myapplication.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -17,14 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.data.ScannedRecord
+import com.example.myapplication.ui.theme.MyApplicationTheme
 
 @Composable
 fun HomeScreen(
@@ -32,10 +27,11 @@ fun HomeScreen(
     pendingCount: Int,
     onScanClick: () -> Unit,
     onPendingClick: () -> Unit,
-    onRemoteLibraryClick: () -> Unit
+    onRemoteLibraryClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(Color(0xFF121212))
             .padding(24.dp)
@@ -50,7 +46,7 @@ fun HomeScreen(
         ) {
             Column {
                 Text(
-                    text = "GOOD EVENING, '$'PERSON",
+                    text = "GOOD EVENING",
                     color = Color.Gray,
                     style = MaterialTheme.typography.labelMedium,
                     letterSpacing = 1.sp
@@ -81,8 +77,8 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             StatCard(modifier = Modifier.weight(1f), label = "Records", value = recordCount.toString())
-            StatCard(modifier = Modifier.weight(1f), label = "Artists", value = (recordCount / 2).toString()) // Mocked
-            StatCard(modifier = Modifier.weight(1f), label = "Value", value = "€${recordCount * 25}") // Mocked
+            StatCard(modifier = Modifier.weight(1f), label = "Artists", value = (recordCount / 2).toString())
+            StatCard(modifier = Modifier.weight(1f), label = "Value", value = "€${recordCount * 25}")
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -128,7 +124,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun StatCard(modifier: Modifier = Modifier, label: String, value: String) {
+fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.height(100.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -150,10 +146,11 @@ fun ActionTile(
     subtitle: String,
     icon: ImageVector,
     color: Color,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
@@ -179,5 +176,19 @@ fun ActionTile(
                 Text(text = subtitle, color = Color.Gray, style = MaterialTheme.typography.bodySmall)
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun HomeScreenPreview() {
+    MyApplicationTheme {
+        HomeScreen(
+            recordCount = 312,
+            pendingCount = 5,
+            onScanClick = {},
+            onPendingClick = {},
+            onRemoteLibraryClick = {}
+        )
     }
 }

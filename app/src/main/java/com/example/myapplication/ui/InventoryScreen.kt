@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.data.ScannedRecord
+import com.example.myapplication.ui.theme.MyApplicationTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,7 +35,8 @@ fun InventoryScreen(
     onDelete: (ScannedRecord) -> Unit,
     onBack: () -> Unit,
     onUploadAll: () -> Unit,
-    onClearAll: () -> Unit
+    onClearAll: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     var showSuccessFeedback by remember { mutableStateOf(false) }
     
@@ -47,6 +50,7 @@ fun InventoryScreen(
     }
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = { Text("MY INVENTORY", letterSpacing = 2.sp, fontWeight = FontWeight.Bold) },
@@ -162,8 +166,9 @@ fun InventoryScreen(
 }
 
 @Composable
-fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit) {
+fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifier = Modifier) {
     Card(
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
         shape = RoundedCornerShape(12.dp)
     ) {
@@ -230,5 +235,24 @@ fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@PreviewLightDark
+@Composable
+fun InventoryScreenPreview() {
+    MyApplicationTheme {
+        InventoryScreen(
+            records = listOf(
+                ScannedRecord(title = "The Dark Side of the Moon", year = "1973", discogsId = 1, isUploaded = true),
+                ScannedRecord(title = "Nevermind", year = "1991", discogsId = 2, isUploaded = false),
+                ScannedRecord(title = "Kind of Blue", year = "1959", discogsId = 3, isUploaded = false)
+            ),
+            isUploading = false,
+            onDelete = {},
+            onBack = {},
+            onUploadAll = {},
+            onClearAll = {}
+        )
     }
 }
