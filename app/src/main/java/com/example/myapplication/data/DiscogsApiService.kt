@@ -11,6 +11,8 @@ interface DiscogsApiService {
     suspend fun searchRelease(
         @Query("artist") artist: String?,
         @Query("release_title") title: String?,
+        @Query("barcode") barcode: String? = null,
+        @Query("format") format: String? = "vinyl",
         @Query("type") type: String = "release",
     ): Response<DiscogsSearchResponse>
 
@@ -20,4 +22,14 @@ interface DiscogsApiService {
         @Path("folderId") folderId: Int,
         @Path("releaseId") releaseId: Long,
     ): Response<AddToCollectionResponse>
+
+    @GET("users/{username}/collection/folders/{folderId}/releases")
+    suspend fun getCollection(
+        @Path("username") username: String,
+        @Path("folderId") folderId: Int = 0, // 0 is 'All'
+        @Query("page") page: Int = 1,
+        @Query("per_page") perPage: Int = 50,
+        @Query("sort") sort: String = "added",
+        @Query("sort_order") sortOrder: String = "desc"
+    ): Response<DiscogsCollectionResponse>
 }

@@ -2,6 +2,12 @@ package com.example.myapplication.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val Gold = Color(0xFFFFD700)
+val DarkGold = Color(0xFFC5A000)
+val DeepBlack = Color(0xFF121212)
+val SurfaceDark = Color(0xFF1E1E1E)
+val OffWhite = Color(0xFFE0E0E0)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)

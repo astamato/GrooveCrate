@@ -42,10 +42,49 @@ class DiscogsRepository {
             .create(DiscogsApiService::class.java)
     }
 
-    suspend fun searchAndAdd(
-        artist: String?,
-        title: String?,
-    ): Result<String> {
+    suspend fun search(
+        artist: String? = null,
+        title: String? = null,
+        barcode: String? = null,
+    ): Result<SearchResult> {
+        if (token.isEmpty() || token == "YOUR_DISCOGS_TOKEN_HERE") {
+            return Result.failure(Exception("Discogs Token missing in local.properties"))
+        }
+
+        return try {
+            val searchResponse = api.searchRelease(artist, title, barcode, format = "vinyl")
+            if (!searchResponse.isSuccessful) {
+                return Result.failure(Exception("Search failed: ${searchResponse.code()}"))
+            }
+
+            val result =
+                searchResponse.body()?.results?.firstOrNull()
+                    ?: return Result.failure(Exception("No matching record found on Discogs"))
+            Result.success(result)
+        } catch (e: Exception) {
+            Log.e("DiscogsRepository", "Search Error", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun addToCollection(releaseId: Long): Result<String> {
+        if (username.isEmpty() || username == "YOUR_DISCOGS_USERNAME_HERE") {
+            return Result.failure(Exception("Discogs Username missing in local.properties"))
+        }
+        return try {
+            val addResponse = api.addReleaseToCollection(username, 1, releaseId)
+            if (addResponse.isSuccessful) {
+                Result.success("Successfully added to your collection!")
+            } else {
+                Result.failure(Exception("Failed to add to collection: ${addResponse.code()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("DiscogsRepository", "Add Error", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getCollection(page: Int = 1): Result<DiscogsCollectionResponse> {
         if (token.isEmpty() || token == "YOUR_DISCOGS_TOKEN_HERE") {
             return Result.failure(Exception("Discogs Token missing in local.properties"))
         }
@@ -54,24 +93,25 @@ class DiscogsRepository {
         }
 
         return try {
-            val searchResponse = api.searchRelease(artist, title)
-            if (!searchResponse.isSuccessful) {
-                return Result.failure(Exception("Search failed: ${searchResponse.code()}"))
-            }
-
-            val result =
-                searchResponse.body()?.results?.firstOrNull()
-                    ?: return Result.failure(Exception("No matching record found on Discogs"))
-
-            val addResponse = api.addReleaseToCollection(username, 1, result.id)
-            if (addResponse.isSuccessful) {
-                Result.success("Successfully added '${result.title}' to your collection!")
+            val response = api.getCollection(username = username, page = page)
+            if (response.isSuccessful) {
+                response.body()?.let { Result.success(it) } ?: Result.failure(Exception("Empty response"))
             } else {
-                Result.failure(Exception("Failed to add to collection: ${addResponse.code()}"))
+                Result.failure(Exception("Failed to fetch collection: ${response.code()}"))
             }
         } catch (e: Exception) {
-            Log.e("DiscogsRepository", "Error", e)
+            Log.e("DiscogsRepository", "Get Collection Error", e)
             Result.failure(e)
         }
+    }
+
+    suspend fun searchAndAdd(
+        artist: String? = null,
+        title: String? = null,
+        barcode: String? = null,
+    ): Result<String> {
+        val searchResult = search(artist, title, barcode)
+        val release = searchResult.getOrElse { return Result.failure(it) }
+        return addToCollection(release.id).map { "Successfully added '${release.title}' to your collection!" }
     }
 }
