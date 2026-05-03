@@ -7,44 +7,27 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.myapplication.data.DiscogsRepository
 import com.example.myapplication.data.RecordIdentifier
 import com.example.myapplication.data.ScannedRecord
+import com.example.myapplication.ui.components.CameraOverlay
+import com.example.myapplication.ui.components.IdentificationFeedback
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.util.BarcodeAnalyzer
 import com.example.myapplication.util.CameraUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -66,8 +49,8 @@ fun CameraContent(
     var lastAddedMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
-    val recordIdentifier = remember { RecordIdentifier() }
-    val discogsRepository = remember { DiscogsRepository() }
+    val recordIdentifier = koinInject<RecordIdentifier>()
+    val discogsRepository = koinInject<DiscogsRepository>()
 
     val imageAnalysis = remember {
         ImageAnalysis.Builder()
@@ -176,204 +159,10 @@ fun CameraContent(
             onViewInventory = onViewInventory
         )
 
-        // Identification Status / Feedback
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = 200.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (isIdentifying) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text("IDENTIFYING...", color = Color.White, fontWeight = FontWeight.Bold)
-                }
-            }
-
-            AnimatedVisibility(
-                visible = lastAddedMessage != null,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Card(
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                    shape = RoundedCornerShape(8.dp),
-                ) {
-                    Text(
-                        lastAddedMessage ?: "",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CameraOverlay(
-    itemCount: Int,
-    onClose: () -> Unit,
-    onTakePhoto: () -> Unit,
-    onViewInventory: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Box(modifier = modifier.fillMaxSize()) {
-        // Top Bar
-        Row(
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(top = 48.dp, start = 24.dp, end = 24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            IconButton(onClick = onClose) {
-                Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(28.dp))
-            }
-            Text(
-                "SCAN MODE",
-                color = Color.White,
-                letterSpacing = 2.sp,
-                fontWeight = FontWeight.Light,
-                fontSize = 14.sp,
-            )
-            Box {
-                Icon(
-                    Icons.AutoMirrored.Filled.List,
-                    contentDescription = "Inventory",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp).clickable { onViewInventory() },
-                )
-                if (itemCount > 0) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .align(Alignment.TopEnd)
-                                .offset(x = 8.dp, y = (-8).dp)
-                                .size(18.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            itemCount.toString(),
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black,
-                        )
-                    }
-                }
-            }
-        }
-
-        // Scanning Box Corners
-        Box(
-            modifier =
-                Modifier
-                    .size(280.dp)
-                    .align(Alignment.Center),
-        ) {
-            val cornerSize = 40.dp
-            val strokeWidth = 3.dp
-            val color = MaterialTheme.colorScheme.primary
-
-            // Corners drawing
-            Modifier.drawBehindCorner(topLeft = true, color = color, stroke = strokeWidth).let { m ->
-                Box(Modifier.align(Alignment.TopStart).size(cornerSize).then(m))
-            }
-            Modifier.drawBehindCorner(topRight = true, color = color, stroke = strokeWidth).let { m ->
-                Box(Modifier.align(Alignment.TopEnd).size(cornerSize).then(m))
-            }
-            Modifier.drawBehindCorner(bottomLeft = true, color = color, stroke = strokeWidth).let { m ->
-                Box(Modifier.align(Alignment.BottomStart).size(cornerSize).then(m))
-            }
-            Modifier.drawBehindCorner(bottomRight = true, color = color, stroke = strokeWidth).let { m ->
-                Box(Modifier.align(Alignment.BottomEnd).size(cornerSize).then(m))
-            }
-        }
-
-        // Mode Selector
-        Row(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 140.dp)
-                    .background(Color.Black.copy(alpha = 0.5f), RoundedCornerShape(20.dp))
-                    .padding(horizontal = 8.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            ModeButton("SINGLE", active = false)
-            ModeButton("BULK", active = true)
-            ModeButton("STACK", active = false)
-        }
-
-        // Capture Button
-        Box(
-            modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 40.dp)
-                    .size(80.dp)
-                    .border(4.dp, Color.White, CircleShape)
-                    .padding(6.dp)
-                    .clip(CircleShape)
-                    .background(Color.White)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) { onTakePhoto() },
+        IdentificationFeedback(
+            isIdentifying = isIdentifying,
+            lastAddedMessage = lastAddedMessage
         )
-    }
-}
-
-@Composable
-private fun ModeButton(
-    text: String,
-    active: Boolean,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier =
-            modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(if (active) Color.White else Color.Transparent)
-                .padding(horizontal = 16.dp, vertical = 6.dp),
-    ) {
-        Text(
-            text,
-            color = if (active) Color.Black else Color.Gray,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-        )
-    }
-}
-
-private fun Modifier.drawBehindCorner(
-    topLeft: Boolean = false,
-    topRight: Boolean = false,
-    bottomLeft: Boolean = false,
-    bottomRight: Boolean = false,
-    color: Color,
-    stroke: Dp,
-) = this.drawBehind {
-    val s = stroke.toPx()
-    if (topLeft) {
-        drawLine(color, Offset(0f, 0f), Offset(size.width, 0f), s)
-        drawLine(color, Offset(0f, 0f), Offset(0f, size.height), s)
-    }
-    if (topRight) {
-        drawLine(color, Offset(size.width, 0f), Offset(0f, 0f), s)
-        drawLine(color, Offset(size.width, 0f), Offset(size.width, size.height), s)
-    }
-    if (bottomLeft) {
-        drawLine(color, Offset(0f, size.height), Offset(size.width, size.height), s)
-        drawLine(color, Offset(0f, size.height), Offset(0f, 0f), s)
-    }
-    if (bottomRight) {
-        drawLine(color, Offset(size.width, size.height), Offset(0f, size.height), s)
-        drawLine(color, Offset(size.width, size.height), Offset(size.width, 0f), s)
     }
 }
 
@@ -381,17 +170,11 @@ private fun Modifier.drawBehindCorner(
 @Composable
 fun CameraContentPreview() {
     MyApplicationTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black)
-        ) {
-            CameraOverlay(
-                itemCount = 3,
-                onClose = {},
-                onTakePhoto = {},
-                onViewInventory = {}
-            )
-        }
+        CameraContent(
+            cameraExecutor = Executors.newSingleThreadExecutor(),
+            viewModel = MainViewModel(DiscogsRepository()),
+            onBack = {},
+            onViewInventory = {}
+        )
     }
 }

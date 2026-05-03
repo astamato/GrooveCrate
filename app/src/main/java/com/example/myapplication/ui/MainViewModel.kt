@@ -10,8 +10,9 @@ import com.example.myapplication.data.DiscogsRepository
 import com.example.myapplication.data.ScannedRecord
 import kotlinx.coroutines.launch
 
-class MainViewModel : ViewModel() {
-    private val discogsRepository = DiscogsRepository()
+class MainViewModel(
+    private val discogsRepository: DiscogsRepository
+) : ViewModel() {
 
     var scannedRecords by mutableStateOf(listOf<ScannedRecord>())
         private set

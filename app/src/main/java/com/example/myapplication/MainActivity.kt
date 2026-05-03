@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.lifecycle.viewmodel.compose.viewModel
+import org.koin.androidx.compose.koinViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainApp(cameraExecutor: ExecutorService) {
     val navController = rememberNavController()
-    val viewModel: MainViewModel = viewModel()
+    val viewModel: MainViewModel = koinViewModel()
 
     NavHost(navController = navController, startDestination = "home") {
         composable("home") {
