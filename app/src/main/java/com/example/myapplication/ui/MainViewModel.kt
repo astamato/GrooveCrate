@@ -1,6 +1,7 @@
 package com.example.myapplication.ui
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -23,7 +24,7 @@ class MainViewModel : ViewModel() {
         private set
     var isLoadingLibrary by mutableStateOf(false)
         private set
-    var libraryTotalCount by mutableStateOf(0)
+    var libraryTotalCount by mutableIntStateOf(0)
         private set
     private var currentLibraryPage = 1
     private var totalPages = 1
