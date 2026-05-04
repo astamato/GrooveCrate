@@ -11,6 +11,7 @@ import androidx.compose.material.icons.filled.LibraryMusic
 import androidx.compose.material.icons.filled.PendingActions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +21,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import java.util.Calendar
 
 @Composable
 fun HomeScreen(
@@ -28,8 +30,17 @@ fun HomeScreen(
     onScanClick: () -> Unit,
     onPendingClick: () -> Unit,
     onRemoteLibraryClick: () -> Unit,
+    onProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val greeting = remember {
+        when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
+            in 0..11 -> "GOOD MORNING"
+            in 12..16 -> "GOOD AFTERNOON"
+            else -> "GOOD EVENING"
+        }
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -46,7 +57,7 @@ fun HomeScreen(
         ) {
             Column {
                 Text(
-                    text = "GOOD EVENING",
+                    text = greeting,
                     color = Color.Gray,
                     style = MaterialTheme.typography.labelMedium,
                     letterSpacing = 1.sp
@@ -62,7 +73,8 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .size(48.dp)
-                    .background(Color(0xFF8B1A1A), CircleShape),
+                    .background(Color(0xFF8B1A1A), CircleShape)
+                    .clickable { onProfileClick() },
                 contentAlignment = Alignment.Center
             ) {
                 Text("A", color = Color.White, fontWeight = FontWeight.Bold)
@@ -188,7 +200,8 @@ fun HomeScreenPreview() {
             pendingCount = 5,
             onScanClick = {},
             onPendingClick = {},
-            onRemoteLibraryClick = {}
+            onRemoteLibraryClick = {},
+            onProfileClick = {}
         )
     }
 }

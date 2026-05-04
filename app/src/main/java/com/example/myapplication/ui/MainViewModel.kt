@@ -6,12 +6,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.AuthManager
 import com.example.myapplication.data.DiscogsRepository
 import com.example.myapplication.data.ScannedRecord
 import kotlinx.coroutines.launch
 
 class MainViewModel(
-    private val discogsRepository: DiscogsRepository
+    private val discogsRepository: DiscogsRepository,
+    private val authManager: AuthManager
 ) : ViewModel() {
 
     var scannedRecords by mutableStateOf(listOf<ScannedRecord>())
@@ -19,6 +21,13 @@ class MainViewModel(
         
     var isUploading by mutableStateOf(false)
         private set
+
+    // Auth State
+    var currentUsername by mutableStateOf(authManager.getUsername())
+        private set
+    var currentToken by mutableStateOf(authManager.getToken())
+        private set
+    val isProfileSetUp: Boolean get() = authManager.hasCredentials()
 
     // Remote Library State
     var remoteRecords by mutableStateOf(listOf<com.example.myapplication.data.CollectionRelease>())
@@ -31,6 +40,13 @@ class MainViewModel(
     private var totalPages = 1
     var hasMorePages by mutableStateOf(true)
         private set
+
+    fun saveProfile(username: String, token: String) {
+        authManager.saveCredentials(username, token)
+        currentUsername = username
+        currentToken = token
+        fetchRemoteLibrary(refresh = true)
+    }
 
     fun addRecord(record: ScannedRecord) {
         scannedRecords = scannedRecords + record
@@ -64,6 +80,8 @@ class MainViewModel(
     }
 
     fun fetchRemoteLibrary(refresh: Boolean = false) {
+        if (!isProfileSetUp) return
+
         if (refresh) {
             currentLibraryPage = 1
             remoteRecords = emptyList()

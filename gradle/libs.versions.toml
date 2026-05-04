@@ -9,14 +9,15 @@ lifecycleRuntimeCompose = "2.10.0"
 activityCompose = "1.13.0"
 kotlin = "2.3.21"
 composeBom = "2026.04.01"
-navigationCompose = "2.8.5"
+navigationCompose = "2.9.8"
 camerax = "1.6.0"
 googleAi = "0.9.0"
 barcode-scanning = "17.3.0"
 retrofit = "3.0.0"
 okhttp = "5.3.2"
 ktlint = "14.2.0"
-coil = "2.6.0"
+coil = "2.7.0"
+security-crypto = "1.1.0"
 koin = "4.2.1"
 
 [libraries]
@@ -42,6 +43,7 @@ androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", 
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
 androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
+androidx-security-crypto = { group = "androidx.security", name = "security-crypto", version.ref = "security-crypto" }
 google-ai-client = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "googleAi" }
 barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "barcode-scanning" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -55,4 +57,3 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
-

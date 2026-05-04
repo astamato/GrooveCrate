@@ -7,16 +7,24 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.myapplication.data.AuthManager
 import com.example.myapplication.data.DiscogsRepository
 import com.example.myapplication.data.RecordIdentifier
 import com.example.myapplication.data.ScannedRecord
@@ -169,10 +177,13 @@ fun CameraContent(
 @PreviewLightDark
 @Composable
 fun CameraContentPreview() {
+    val context = LocalContext.current
+    val authManager = AuthManager(context)
+    val viewModel = MainViewModel(DiscogsRepository(authManager), authManager)
     MyApplicationTheme {
         CameraContent(
             cameraExecutor = Executors.newSingleThreadExecutor(),
-            viewModel = MainViewModel(DiscogsRepository()),
+            viewModel = viewModel,
             onBack = {},
             onViewInventory = {}
         )

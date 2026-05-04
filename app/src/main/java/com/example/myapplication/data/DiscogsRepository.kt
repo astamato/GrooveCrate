@@ -1,15 +1,12 @@
 package com.example.myapplication.data
 
 import android.util.Log
-import com.example.myapplication.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class DiscogsRepository {
-    private val token = BuildConfig.DISCOGS_TOKEN
-    private val username = BuildConfig.DISCOGS_USERNAME
+class DiscogsRepository(private val authManager: AuthManager) {
     private val userAgent = "RecordInventoryApp/1.0"
 
     private val api: DiscogsApiService by lazy {
@@ -23,6 +20,7 @@ class DiscogsRepository {
                 .Builder()
                 .addInterceptor(logging)
                 .addInterceptor { chain ->
+                    val token = authManager.getToken() ?: ""
                     val request =
                         chain
                             .request()
@@ -47,8 +45,9 @@ class DiscogsRepository {
         title: String? = null,
         barcode: String? = null,
     ): Result<SearchResult> {
-        if (token.isEmpty() || token == "YOUR_DISCOGS_TOKEN_HERE") {
-            return Result.failure(Exception("Discogs Token missing in local.properties"))
+        val token = authManager.getToken()
+        if (token.isNullOrEmpty()) {
+            return Result.failure(Exception("Discogs Token missing. Please set up your profile."))
         }
 
         return try {
@@ -68,8 +67,9 @@ class DiscogsRepository {
     }
 
     suspend fun addToCollection(releaseId: Long): Result<String> {
-        if (username.isEmpty() || username == "YOUR_DISCOGS_USERNAME_HERE") {
-            return Result.failure(Exception("Discogs Username missing in local.properties"))
+        val username = authManager.getUsername()
+        if (username.isNullOrEmpty()) {
+            return Result.failure(Exception("Discogs Username missing. Please set up your profile."))
         }
         return try {
             val addResponse = api.addReleaseToCollection(username, 1, releaseId)
@@ -85,11 +85,9 @@ class DiscogsRepository {
     }
 
     suspend fun getCollection(page: Int = 1): Result<DiscogsCollectionResponse> {
-        if (token.isEmpty() || token == "YOUR_DISCOGS_TOKEN_HERE") {
-            return Result.failure(Exception("Discogs Token missing in local.properties"))
-        }
-        if (username.isEmpty() || username == "YOUR_DISCOGS_USERNAME_HERE") {
-            return Result.failure(Exception("Discogs Username missing in local.properties"))
+        val username = authManager.getUsername()
+        if (username.isNullOrEmpty()) {
+            return Result.failure(Exception("Discogs Username missing. Please set up your profile."))
         }
 
         return try {

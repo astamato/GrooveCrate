@@ -41,14 +41,17 @@ fun MainApp(cameraExecutor: ExecutorService) {
     val navController = rememberNavController()
     val viewModel: MainViewModel = koinViewModel()
 
-    NavHost(navController = navController, startDestination = "home") {
+    val startDestination = if (viewModel.isProfileSetUp) "home" else "profile"
+
+    NavHost(navController = navController, startDestination = startDestination) {
         composable("home") {
             HomeScreen(
                 recordCount = viewModel.libraryTotalCount,
                 pendingCount = viewModel.scannedRecords.count { !it.isUploaded },
                 onScanClick = { navController.navigate("camera") },
                 onPendingClick = { navController.navigate("inventory") },
-                onRemoteLibraryClick = { navController.navigate("remote_library") }
+                onRemoteLibraryClick = { navController.navigate("remote_library") },
+                onProfileClick = { navController.navigate("profile") }
             )
             
             // Auto-fetch library count on home
@@ -57,6 +60,18 @@ fun MainApp(cameraExecutor: ExecutorService) {
                     viewModel.fetchRemoteLibrary(refresh = true)
                 }
             }
+        }
+        composable("profile") {
+            ProfileScreen(
+                currentUsername = viewModel.currentUsername,
+                currentToken = viewModel.currentToken,
+                onSave = { username, token ->
+                    viewModel.saveProfile(username, token)
+                    navController.navigate("home") {
+                        popUpTo("profile") { inclusive = true }
+                    }
+                }
+            )
         }
         composable("camera") {
             MainScreen(

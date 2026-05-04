@@ -75,6 +75,7 @@ dependencies {
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
+    implementation(libs.androidx.security.crypto)
     implementation(libs.google.ai.client)
     implementation(libs.barcode.scanning)
     implementation(libs.retrofit)
