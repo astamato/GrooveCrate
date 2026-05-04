@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -34,6 +35,7 @@ fun RemoteLibraryScreen(
     onBack: () -> Unit,
     onLoadMore: () -> Unit,
     onRefresh: () -> Unit,
+    onDelete: (CollectionRelease) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
@@ -87,7 +89,10 @@ fun RemoteLibraryScreen(
                         if (index >= records.size - 5 && !isLoading && hasMore) {
                             onLoadMore()
                         }
-                        RemoteInventoryItem(record = record)
+                        RemoteInventoryItem(
+                            record = record,
+                            onDelete = { onDelete(record) }
+                        )
                     }
                     
                     if (isLoading && hasMore) {
@@ -107,7 +112,11 @@ fun RemoteLibraryScreen(
 }
 
 @Composable
-fun RemoteInventoryItem(record: CollectionRelease, modifier: Modifier = Modifier) {
+fun RemoteInventoryItem(
+    record: CollectionRelease,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -152,6 +161,14 @@ fun RemoteInventoryItem(record: CollectionRelease, modifier: Modifier = Modifier
                     )
                 }
             }
+
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete from collection",
+                    tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                )
+            }
         }
     }
 }
@@ -181,7 +198,8 @@ fun RemoteLibraryScreenPreview() {
             hasMore = false,
             onBack = {},
             onLoadMore = {},
-            onRefresh = {}
+            onRefresh = {},
+            onDelete = {}
         )
     }
 }

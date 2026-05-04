@@ -12,6 +12,7 @@ data class ScannedRecord(
     val discogsId: Long,
     val thumbnail: Bitmap? = null,
     var isUploaded: Boolean = false,
+    var instanceId: Long? = null,
     var isError: Boolean = false,
     var errorMessage: String? = null,
 )

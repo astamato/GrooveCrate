@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -44,7 +45,9 @@ fun InventoryScreen(
     onBack: () -> Unit,
     onUploadAll: () -> Unit,
     onClearAll: () -> Unit,
-    modifier: Modifier = Modifier
+    onClearCompleted: () -> Unit,
+    modifier: Modifier = Modifier,
+    username: String? = null
 ) {
     var showSuccessFeedback by remember { mutableStateOf(false) }
     
@@ -71,7 +74,19 @@ fun InventoryScreen(
                     containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.primary,
                     navigationIconContentColor = MaterialTheme.colorScheme.onBackground
-                )
+                ),
+                actions = {
+                    if (records.isNotEmpty() && !showSuccessFeedback) {
+                        if (records.any { it.isUploaded }) {
+                            TextButton(onClick = onClearCompleted) {
+                                Text("FLUSH SUCCESS", color = MaterialTheme.colorScheme.primary)
+                            }
+                        }
+                        TextButton(onClick = onClearAll) {
+                            Text("CLEAR ALL", color = MaterialTheme.colorScheme.error)
+                        }
+                    }
+                }
             )
         },
         bottomBar = {
@@ -127,7 +142,8 @@ fun InventoryScreen(
                         onClearAll()
                         showSuccessFeedback = false
                         onBack()
-                    }
+                    },
+                    username = username
                 )
             } else if (records.isEmpty()) {
                 Box(
@@ -215,10 +231,8 @@ fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifie
                 }
             }
             
-            if (!record.isUploaded) {
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
-                }
+            IconButton(onClick = onDelete) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
             }
         }
     }
@@ -229,8 +243,10 @@ fun SuccessContent(
     count: Int,
     totalCount: Int,
     thumbnails: List<Bitmap>,
-    onDone: () -> Unit
+    onDone: () -> Unit,
+    username: String? = null
 ) {
+    val uriHandler = LocalUriHandler.current
     val backgroundBrush = Brush.radialGradient(
         colors = listOf(Color(0xFF32281D), Color(0xFF121212)),
         center = Offset(x = 540f, y = 500f), // Adjusted for typical screen center
@@ -346,7 +362,14 @@ fun SuccessContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        TextButton(onClick = { /* Navigate to Discogs */ }) {
+        TextButton(onClick = {
+            val url = if (username != null) {
+                "https://www.discogs.com/users/$username/collection"
+            } else {
+                "https://www.discogs.com"
+            }
+            uriHandler.openUri(url)
+        }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("View on Discogs", color = Color.Gray)
                 Spacer(modifier = Modifier.width(4.dp))
@@ -384,7 +407,8 @@ fun InventoryScreenPreview() {
             onDelete = {},
             onBack = {},
             onUploadAll = {},
-            onClearAll = {}
+            onClearAll = {},
+            onClearCompleted = {}
         )
     }
 }

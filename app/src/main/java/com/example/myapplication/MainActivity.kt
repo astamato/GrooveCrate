@@ -7,6 +7,12 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,67 +46,87 @@ class MainActivity : ComponentActivity() {
 fun MainApp(cameraExecutor: ExecutorService) {
     val navController = rememberNavController()
     val viewModel: MainViewModel = koinViewModel()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    val startDestination = if (viewModel.isProfileSetUp) "home" else "profile"
-
-    NavHost(navController = navController, startDestination = startDestination) {
-        composable("home") {
-            HomeScreen(
-                recordCount = viewModel.libraryTotalCount,
-                pendingCount = viewModel.scannedRecords.count { !it.isUploaded },
-                onScanClick = { navController.navigate("camera") },
-                onPendingClick = { navController.navigate("inventory") },
-                onRemoteLibraryClick = { navController.navigate("remote_library") },
-                onProfileClick = { navController.navigate("profile") }
-            )
-            
-            // Auto-fetch library count on home
-            LaunchedEffect(Unit) {
-                if (viewModel.libraryTotalCount == 0) {
-                    viewModel.fetchRemoteLibrary(refresh = true)
-                }
-            }
+    val userMessage = viewModel.userMessage
+    LaunchedEffect(userMessage) {
+        userMessage?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearUserMessage()
         }
-        composable("profile") {
-            ProfileScreen(
-                currentUsername = viewModel.currentUsername,
-                currentToken = viewModel.currentToken,
-                onSave = { username, token ->
-                    viewModel.saveProfile(username, token)
-                    navController.navigate("home") {
-                        popUpTo("profile") { inclusive = true }
+    }
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { innerPadding ->
+        val startDestination = if (viewModel.isProfileSetUp) "home" else "profile"
+
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable("home") {
+                HomeScreen(
+                    recordCount = viewModel.libraryTotalCount,
+                    pendingCount = viewModel.scannedRecords.count { !it.isUploaded },
+                    onScanClick = { navController.navigate("camera") },
+                    onPendingClick = { navController.navigate("inventory") },
+                    onRemoteLibraryClick = { navController.navigate("remote_library") },
+                    onProfileClick = { navController.navigate("profile") }
+                )
+
+                // Auto-fetch library count on home
+                LaunchedEffect(Unit) {
+                    if (viewModel.libraryTotalCount == 0) {
+                        viewModel.fetchRemoteLibrary(refresh = true)
                     }
                 }
-            )
-        }
-        composable("camera") {
-            MainScreen(
-                cameraExecutor = cameraExecutor,
-                viewModel = viewModel,
-                onBack = { navController.popBackStack() },
-                onViewInventory = { navController.navigate("inventory") }
-            )
-        }
-        composable("inventory") {
-            InventoryScreen(
-                records = viewModel.scannedRecords,
-                isUploading = viewModel.isUploading,
-                totalCount = viewModel.libraryTotalCount,
-                onDelete = { viewModel.removeRecord(it) },
-                onBack = { navController.popBackStack() },
-                onUploadAll = { viewModel.uploadAll() },
-                onClearAll = { viewModel.clearAll() }
-            )
-        }
-        composable("remote_library") {
-            RemoteLibraryScreen(
-                records = viewModel.remoteRecords,
-                isLoading = viewModel.isLoadingLibrary,
-                hasMore = viewModel.hasMorePages,
-                onBack = { navController.popBackStack() },
-                onLoadMore = { viewModel.fetchRemoteLibrary() },
-                onRefresh = { viewModel.fetchRemoteLibrary(refresh = true) }
-            )
+            }
+            composable("profile") {
+                ProfileScreen(
+                    currentUsername = viewModel.currentUsername,
+                    currentToken = viewModel.currentToken,
+                    onSave = { username, token ->
+                        viewModel.saveProfile(username, token)
+                        navController.navigate("home") {
+                            popUpTo("profile") { inclusive = true }
+                        }
+                    }
+                )
+            }
+            composable("camera") {
+                MainScreen(
+                    cameraExecutor = cameraExecutor,
+                    viewModel = viewModel,
+                    onBack = { navController.popBackStack() },
+                    onViewInventory = { navController.navigate("inventory") }
+                )
+            }
+            composable("inventory") {
+                InventoryScreen(
+                    records = viewModel.scannedRecords,
+                    isUploading = viewModel.isUploading,
+                    totalCount = viewModel.libraryTotalCount,
+                    onDelete = { viewModel.removeRecord(it) },
+                    onBack = { navController.popBackStack() },
+                    onUploadAll = { viewModel.uploadAll() },
+                    onClearAll = { viewModel.clearAll() },
+                    onClearCompleted = { viewModel.clearCompleted() },
+                    username = viewModel.currentUsername
+                )
+            }
+            composable("remote_library") {
+                RemoteLibraryScreen(
+                    records = viewModel.remoteRecords,
+                    isLoading = viewModel.isLoadingLibrary,
+                    hasMore = viewModel.hasMorePages,
+                    onBack = { navController.popBackStack() },
+                    onLoadMore = { viewModel.fetchRemoteLibrary() },
+                    onRefresh = { viewModel.fetchRemoteLibrary(refresh = true) },
+                    onDelete = { viewModel.removeReleaseFromRemote(it) }
+                )
+            }
         }
     }
 }

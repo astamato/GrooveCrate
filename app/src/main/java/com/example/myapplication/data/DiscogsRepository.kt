@@ -66,20 +66,39 @@ class DiscogsRepository(private val authManager: AuthManager) {
         }
     }
 
-    suspend fun addToCollection(releaseId: Long): Result<String> {
+    suspend fun addToCollection(releaseId: Long): Result<Long> {
         val username = authManager.getUsername()
         if (username.isNullOrEmpty()) {
             return Result.failure(Exception("Discogs Username missing. Please set up your profile."))
         }
         return try {
             val addResponse = api.addReleaseToCollection(username, 1, releaseId)
-            if (addResponse.isSuccessful) {
-                Result.success("Successfully added to your collection!")
+            val body = addResponse.body()
+            if (addResponse.isSuccessful && body != null) {
+                Result.success(body.instance_id)
             } else {
                 Result.failure(Exception("Failed to add to collection: ${addResponse.code()}"))
             }
         } catch (e: Exception) {
             Log.e("DiscogsRepository", "Add Error", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun removeFromCollection(releaseId: Long, instanceId: Long, folderId: Int = 1): Result<String> {
+        val username = authManager.getUsername()
+        if (username.isNullOrEmpty()) {
+            return Result.failure(Exception("Discogs Username missing. Please set up your profile."))
+        }
+        return try {
+            val response = api.deleteReleaseFromCollection(username, folderId, releaseId, instanceId)
+            if (response.isSuccessful) {
+                Result.success("Successfully removed from your collection!")
+            } else {
+                Result.failure(Exception("Failed to remove from collection: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Log.e("DiscogsRepository", "Remove Error", e)
             Result.failure(e)
         }
     }

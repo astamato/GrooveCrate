@@ -43,6 +43,13 @@ class MainViewModel(
     var hasMorePages by mutableStateOf(true)
         private set
 
+    var userMessage by mutableStateOf<String?>(null)
+        private set
+
+    fun clearUserMessage() {
+        userMessage = null
+    }
+
     fun saveProfile(username: String, token: String) {
         authManager.saveCredentials(username, token)
         currentUsername = username
@@ -62,11 +69,26 @@ class MainViewModel(
     }
 
     fun removeRecord(record: ScannedRecord) {
+        if (record.isUploaded && record.instanceId != null) {
+            viewModelScope.launch {
+                val result = discogsRepository.removeFromCollection(record.discogsId, record.instanceId!!)
+                result.onSuccess {
+                    remoteReleaseIds = remoteReleaseIds - record.discogsId
+                    userMessage = "Removed from Discogs"
+                }.onFailure {
+                    userMessage = "Failed to remove from Discogs: ${it.message}"
+                }
+            }
+        }
         scannedRecords = scannedRecords.filter { it.id != record.id }
     }
 
     fun clearAll() {
         scannedRecords = emptyList()
+    }
+
+    fun clearCompleted() {
+        scannedRecords = scannedRecords.filter { !it.isUploaded }
     }
 
     fun uploadAll() {
@@ -75,8 +97,8 @@ class MainViewModel(
             scannedRecords.forEach { record ->
                 if (!record.isUploaded) {
                     val result = discogsRepository.addToCollection(record.discogsId)
-                    result.onSuccess {
-                        updateRecord(record.copy(isUploaded = true, isError = false))
+                    result.onSuccess { instanceId ->
+                        updateRecord(record.copy(isUploaded = true, instanceId = instanceId, isError = false))
                         remoteReleaseIds = remoteReleaseIds + record.discogsId
                     }.onFailure {
                         updateRecord(record.copy(isError = true, errorMessage = it.message))
@@ -118,6 +140,22 @@ class MainViewModel(
                 }
             }.onFailure {
                 hasMorePages = false
+            }
+            isLoadingLibrary = false
+        }
+    }
+
+    fun removeReleaseFromRemote(record: com.example.myapplication.data.CollectionRelease) {
+        viewModelScope.launch {
+            isLoadingLibrary = true
+            val result = discogsRepository.removeFromCollection(record.id, record.instance_id, record.folder_id)
+            result.onSuccess {
+                remoteRecords = remoteRecords.filter { it.instance_id != record.instance_id }
+                remoteReleaseIds = remoteReleaseIds - record.id
+                libraryTotalCount--
+                userMessage = "Successfully removed"
+            }.onFailure {
+                userMessage = "Failed to remove: ${it.message}"
             }
             isLoadingLibrary = false
         }
