@@ -1,5 +1,6 @@
 package com.example.myapplication.ui
 
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -7,6 +8,9 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,6 +34,7 @@ import com.example.myapplication.data.RecordIdentifier
 import com.example.myapplication.data.ScannedRecord
 import com.example.myapplication.ui.components.CameraOverlay
 import com.example.myapplication.ui.components.IdentificationFeedback
+import com.example.myapplication.ui.components.IdentifyingScreen
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.util.BarcodeAnalyzer
 import com.example.myapplication.util.CameraUtils
@@ -54,6 +59,7 @@ fun CameraContent(
 
     var detectedBarcode by remember { mutableStateOf<String?>(null) }
     var isIdentifying by remember { mutableStateOf(false) }
+    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var lastAddedMessage by remember { mutableStateOf<String?>(null) }
 
     val scope = rememberCoroutineScope()
@@ -135,8 +141,9 @@ fun CameraContent(
             onClose = onBack,
             onTakePhoto = {
                 CameraUtils.takePhoto(imageCapture, cameraExecutor) { bitmap ->
+                    capturedBitmap = bitmap
+                    isIdentifying = true
                     scope.launch {
-                        isIdentifying = true
                         val identified = recordIdentifier.identify(bitmap)
                         if (identified.artist != null && identified.album != null) {
                             val result = discogsRepository.search(
@@ -169,14 +176,29 @@ fun CameraContent(
                             lastAddedMessage = null
                         }
                         isIdentifying = false
+                        capturedBitmap = null
                     }
                 }
             },
             onViewInventory = onViewInventory
         )
 
+        AnimatedVisibility(
+            visible = isIdentifying && capturedBitmap != null,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            IdentifyingScreen(
+                capturedBitmap = capturedBitmap,
+                onCancel = {
+                    isIdentifying = false
+                    capturedBitmap = null
+                }
+            )
+        }
+
         IdentificationFeedback(
-            isIdentifying = isIdentifying,
+            isIdentifying = isIdentifying && capturedBitmap == null,
             lastAddedMessage = lastAddedMessage
         )
     }

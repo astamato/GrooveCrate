@@ -85,6 +85,7 @@ fun MainApp(cameraExecutor: ExecutorService) {
             InventoryScreen(
                 records = viewModel.scannedRecords,
                 isUploading = viewModel.isUploading,
+                totalCount = viewModel.libraryTotalCount,
                 onDelete = { viewModel.removeRecord(it) },
                 onBack = { navController.popBackStack() },
                 onUploadAll = { viewModel.uploadAll() },
