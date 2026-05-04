@@ -68,9 +68,9 @@ fun InventoryScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Black,
+                    containerColor = MaterialTheme.colorScheme.background,
                     titleContentColor = MaterialTheme.colorScheme.primary,
-                    navigationIconContentColor = Color.White
+                    navigationIconContentColor = MaterialTheme.colorScheme.onBackground
                 )
             )
         },
@@ -78,7 +78,7 @@ fun InventoryScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(16.dp)
             ) {
                 if (showSuccessFeedback) {
@@ -115,7 +115,7 @@ fun InventoryScreen(
                 }
             }
         },
-        containerColor = Color.Black
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (showSuccessFeedback) {
@@ -134,7 +134,7 @@ fun InventoryScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Your inventory is empty", color = Color.Gray)
+                    Text("Your inventory is empty", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f))
                 }
             } else {
                 LazyColumn(
@@ -155,7 +155,7 @@ fun InventoryScreen(
 fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier,
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
@@ -177,10 +177,10 @@ fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifie
                 Box(
                     modifier = Modifier
                         .size(60.dp)
-                        .background(Color.DarkGray, RoundedCornerShape(8.dp)),
+                        .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f), RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("LP", color = Color.Gray)
+                    Text("LP", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f))
                 }
             }
             
@@ -189,14 +189,14 @@ fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifie
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = record.title,
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
                 if (record.year != null) {
                     Text(
                         text = "Year: ${record.year}",
-                        color = Color.Gray,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
@@ -217,7 +217,7 @@ fun InventoryItem(record: ScannedRecord, onDelete: () -> Unit, modifier: Modifie
             
             if (!record.isUploaded) {
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Gray)
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
                 }
             }
         }

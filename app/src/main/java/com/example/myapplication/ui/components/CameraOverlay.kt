@@ -40,25 +40,38 @@ fun CameraOverlay(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onClose) {
+            IconButton(
+                onClick = onClose,
+                modifier = Modifier.background(Color.Black.copy(alpha = 0.4f), CircleShape)
+            ) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White, modifier = Modifier.size(28.dp))
             }
             Text(
                 "SCAN MODE",
                 color = Color.White,
+                modifier = Modifier
+                    .background(Color.Black.copy(alpha = 0.4f), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 letterSpacing = 2.sp,
-                fontWeight = FontWeight.Light,
-                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp,
             )
             Box {
-                Icon(
-                    Icons.AutoMirrored.Filled.List,
-                    contentDescription = "Inventory",
-                    tint = Color.White,
+                Box(
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(48.dp)
+                        .background(Color.Black.copy(alpha = 0.4f), CircleShape)
+                        .clip(CircleShape)
                         .clickable { onViewInventory() },
-                )
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.List,
+                        contentDescription = "Inventory",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp),
+                    )
+                }
                 if (itemCount > 0) {
                     Box(
                         modifier = Modifier

@@ -44,7 +44,7 @@ fun HomeScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color(0xFF121212))
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp)
     ) {
         Spacer(modifier = Modifier.height(24.dp))
@@ -64,7 +64,7 @@ fun HomeScreen(
                 )
                 Text(
                     text = "Your crate",
-                    color = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -139,15 +139,15 @@ fun HomeScreen(
 fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.height(100.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = value, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-            Text(text = label, color = Color.Gray, fontSize = 12.sp)
+            Text(text = value, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold, fontSize = 20.sp)
+            Text(text = label, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), fontSize = 12.sp)
         }
     }
 }
@@ -165,7 +165,7 @@ fun ActionTile(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E1E1E)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(16.dp)
     ) {
         Row(
@@ -184,8 +184,8 @@ fun ActionTile(
             Spacer(modifier = Modifier.width(16.dp))
             
             Column {
-                Text(text = title, color = Color.White, fontWeight = FontWeight.Bold)
-                Text(text = subtitle, color = Color.Gray, style = MaterialTheme.typography.bodySmall)
+                Text(text = title, color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.Bold)
+                Text(text = subtitle, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), style = MaterialTheme.typography.bodySmall)
             }
         }
     }
