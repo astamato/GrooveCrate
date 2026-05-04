@@ -28,7 +28,7 @@ interface DiscogsApiService {
         @Path("username") username: String,
         @Path("folderId") folderId: Int = 0, // 0 is 'All'
         @Query("page") page: Int = 1,
-        @Query("per_page") perPage: Int = 50,
+        @Query("per_page") perPage: Int = 100,
         @Query("sort") sort: String = "added",
         @Query("sort_order") sortOrder: String = "desc"
     ): Response<DiscogsCollectionResponse>

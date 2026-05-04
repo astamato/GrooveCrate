@@ -32,6 +32,8 @@ class MainViewModel(
     // Remote Library State
     var remoteRecords by mutableStateOf(listOf<com.example.myapplication.data.CollectionRelease>())
         private set
+    var remoteReleaseIds by mutableStateOf(setOf<Long>())
+        private set
     var isLoadingLibrary by mutableStateOf(false)
         private set
     var libraryTotalCount by mutableIntStateOf(0)
@@ -48,13 +50,15 @@ class MainViewModel(
         fetchRemoteLibrary(refresh = true)
     }
 
-    fun addRecord(record: ScannedRecord): Boolean {
-        return if (scannedRecords.none { it.discogsId == record.discogsId }) {
-            scannedRecords = scannedRecords + record
-            true
-        } else {
-            false
+    fun addRecord(record: ScannedRecord): String? {
+        if (scannedRecords.any { it.discogsId == record.discogsId }) {
+            return "Already in temporary list"
         }
+        if (remoteReleaseIds.contains(record.discogsId)) {
+            return "Already in your Discogs collection"
+        }
+        scannedRecords = scannedRecords + record
+        return null
     }
 
     fun removeRecord(record: ScannedRecord) {
@@ -73,6 +77,7 @@ class MainViewModel(
                     val result = discogsRepository.addToCollection(record.discogsId)
                     result.onSuccess {
                         updateRecord(record.copy(isUploaded = true, isError = false))
+                        remoteReleaseIds = remoteReleaseIds + record.discogsId
                     }.onFailure {
                         updateRecord(record.copy(isError = true, errorMessage = it.message))
                     }
@@ -90,6 +95,7 @@ class MainViewModel(
         if (refresh) {
             currentLibraryPage = 1
             remoteRecords = emptyList()
+            remoteReleaseIds = emptySet()
             hasMorePages = true
         }
         
@@ -100,14 +106,35 @@ class MainViewModel(
             val result = discogsRepository.getCollection(currentLibraryPage)
             result.onSuccess { response ->
                 remoteRecords = if (refresh) response.releases else remoteRecords + response.releases
+                remoteReleaseIds = remoteReleaseIds + response.releases.map { it.id }
                 libraryTotalCount = response.pagination.items
                 totalPages = response.pagination.pages
                 currentLibraryPage++
                 hasMorePages = currentLibraryPage <= totalPages
+                
+                // If we are refreshing and there are more pages, let's pre-fetch more IDs in background
+                if (refresh && hasMorePages) {
+                    fetchAllRemoteIds()
+                }
             }.onFailure {
                 hasMorePages = false
             }
             isLoadingLibrary = false
+        }
+    }
+
+    private fun fetchAllRemoteIds() {
+        viewModelScope.launch {
+            var page = 2
+            while (page <= totalPages) {
+                val result = discogsRepository.getCollection(page)
+                result.onSuccess { response ->
+                    remoteReleaseIds = remoteReleaseIds + response.releases.map { it.id }
+                    page++
+                }.onFailure {
+                    return@launch
+                }
+            }
         }
     }
 

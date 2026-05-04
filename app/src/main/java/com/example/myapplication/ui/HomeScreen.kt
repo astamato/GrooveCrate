@@ -90,7 +90,7 @@ fun HomeScreen(
         ) {
             StatCard(modifier = Modifier.weight(1f), label = "Records", value = recordCount.toString())
             StatCard(modifier = Modifier.weight(1f), label = "Artists", value = (recordCount / 2).toString())
-            StatCard(modifier = Modifier.weight(1f), label = "Value", value = "€${recordCount * 25}")
+            StatCard(modifier = Modifier.weight(1f), label = "Value", value = "£${recordCount * 25}")
         }
 
         Spacer(modifier = Modifier.height(32.dp))

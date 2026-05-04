@@ -77,10 +77,11 @@ fun CameraContent(
                                     year = release.year,
                                     discogsId = release.id
                                 )
-                                if (viewModel.addRecord(newRecord)) {
+                                val error = viewModel.addRecord(newRecord)
+                                if (error == null) {
                                     lastAddedMessage = "Added: ${release.title}"
                                 } else {
-                                    lastAddedMessage = "Already in list: ${release.title}"
+                                    lastAddedMessage = error
                                 }
                                 delay(2000)
                                 lastAddedMessage = null
@@ -149,10 +150,11 @@ fun CameraContent(
                                     discogsId = release.id,
                                     thumbnail = bitmap,
                                 )
-                                if (viewModel.addRecord(newRecord)) {
+                                val error = viewModel.addRecord(newRecord)
+                                if (error == null) {
                                     lastAddedMessage = "Added: ${release.title}"
                                 } else {
-                                    lastAddedMessage = "Already in list: ${release.title}"
+                                    lastAddedMessage = error
                                 }
                                 delay(2000)
                                 lastAddedMessage = null
