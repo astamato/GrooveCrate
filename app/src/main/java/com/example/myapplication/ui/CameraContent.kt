@@ -7,19 +7,19 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -77,8 +77,11 @@ fun CameraContent(
                                     year = release.year,
                                     discogsId = release.id
                                 )
-                                viewModel.addRecord(newRecord)
-                                lastAddedMessage = "Added: ${release.title}"
+                                if (viewModel.addRecord(newRecord)) {
+                                    lastAddedMessage = "Added: ${release.title}"
+                                } else {
+                                    lastAddedMessage = "Already in list: ${release.title}"
+                                }
                                 delay(2000)
                                 lastAddedMessage = null
                             }.onFailure {
@@ -146,8 +149,11 @@ fun CameraContent(
                                     discogsId = release.id,
                                     thumbnail = bitmap,
                                 )
-                                viewModel.addRecord(newRecord)
-                                lastAddedMessage = "Added: ${release.title}"
+                                if (viewModel.addRecord(newRecord)) {
+                                    lastAddedMessage = "Added: ${release.title}"
+                                } else {
+                                    lastAddedMessage = "Already in list: ${release.title}"
+                                }
                                 delay(2000)
                                 lastAddedMessage = null
                             }.onFailure {

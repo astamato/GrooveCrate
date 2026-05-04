@@ -48,8 +48,13 @@ class MainViewModel(
         fetchRemoteLibrary(refresh = true)
     }
 
-    fun addRecord(record: ScannedRecord) {
-        scannedRecords = scannedRecords + record
+    fun addRecord(record: ScannedRecord): Boolean {
+        return if (scannedRecords.none { it.discogsId == record.discogsId }) {
+            scannedRecords = scannedRecords + record
+            true
+        } else {
+            false
+        }
     }
 
     fun removeRecord(record: ScannedRecord) {

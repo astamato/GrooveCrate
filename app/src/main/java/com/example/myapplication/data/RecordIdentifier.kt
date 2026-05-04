@@ -23,7 +23,7 @@ class RecordIdentifier {
         }
 
         return withContext(Dispatchers.IO) {
-            val modelsToTry = listOf("gemini-3-flash", "gemini-flash-latest")
+            val modelsToTry = listOf("gemini-flash-latest")
             var lastError = ""
 
             for (modelName in modelsToTry) {
@@ -39,8 +39,8 @@ class RecordIdentifier {
                             image(bitmap)
                             text(
                                 "Identify this vinyl record cover. Return the Artist and Album title. " +
-                                    "Format the output as JSON with 'artist' and 'album' keys. " +
-                                    "If you are not sure, give your best guess.",
+                                        "Format the output as JSON with 'artist' and 'album' keys. " +
+                                        "If you are not sure, give your best guess.",
                             )
                         }
 
