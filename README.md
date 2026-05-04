@@ -6,17 +6,17 @@
 
 - **Hybrid Identification**: Point at a barcode for instant precision or snap a photo of the cover to let the **Gemini 3 Flash AI** identify the record.
 - **"Supermarket Style" Bulk Scanning**: Scan an entire crate of records in one go. Review your list, delete mismatches, and upload everything in a single tap.
-- **Dynamic Dashboard**: View your collection stats at a glance—total records, artist counts, and estimated collection value.
+- **Dynamic Dashboard**: View your collection stats at a glance—total records, artist counts, and estimated collection value—with a personalized greeting.
 - **Seamless Discogs Sync**: Full integration with the Discogs API, including a remote library browser with infinite scroll and pull-to-refresh.
+- **Secure Profile System**: Multi-user support with encrypted on-device storage for Discogs credentials using `EncryptedSharedPreferences`.
 - **Luxury Dark UI**: A refined "Analog-inspired" interface using a deep black and gold color palette.
-- **Privacy Centric**: Your API keys and personal tokens are managed securely via `local.properties` and never touch version control.
+- **Privacy Centric**: Build-time secrets are managed via `local.properties`, and user tokens are encrypted on-device.
 
 ## 🛠️ Prerequisites
 
 To unleash the full power of GrooveCrate, you need:
 1.  **Gemini API Key**: Obtain one for free at [Google AI Studio](https://aistudio.google.com/).
 2.  **Discogs Personal Access Token**: Generate one in your [Discogs Developer Settings](https://www.discogs.com/settings/developers).
-3.  **Discogs Username**: Your public username.
 
 ## 🚀 Setup Instructions
 
@@ -25,20 +25,21 @@ To unleash the full power of GrooveCrate, you need:
     git clone https://github.com/astamato/RecordInventory.git
     ```
 
-2.  **Configure API Keys**:
-    Open (or create) the `local.properties` file in the root directory and add your credentials:
+2.  **Configure Gemini API Key**:
+    Open (or create) the `local.properties` file in the root directory and add your key:
     ```properties
     GEMINI_API_KEY=your_gemini_api_key_here
-    DISCOGS_TOKEN=your_discogs_personal_access_token_here
-    DISCOGS_USERNAME=your_discogs_username_here
     ```
 
 3.  **Build & Launch**:
     Open in **Android Studio**, sync Gradle, and deploy to your device.
 
+4.  **In-App Onboarding**:
+    On first launch, you will be prompted to enter your **Discogs Username** and **Personal Access Token** to link your account.
+
 ## 📱 How to Use
 
-1.  **Crate Dashboard**: Start here to see your collection stats.
+1.  **Crate Dashboard**: Start here to see your collection stats. Tap the profile icon to update your credentials.
 2.  **Scan a Shelf**: Launch the "Shelf Mode" camera.
     -   Point at a barcode for auto-detection.
     -   Tap the capture button to identify by cover art.
@@ -46,14 +47,16 @@ To unleash the full power of GrooveCrate, you need:
 4.  **Bulk Upload**: Tap "Upload All" to sync your batch to your Discogs account.
 5.  **Remote Library**: Browse your entire existing collection and pull down to refresh.
 
-## 🏗️ Architecture
+## 🏗️ Architecture & Tech Stack
 
--   **UI**: Jetpack Compose (Modern, declarative UI).
--   **Brain**: Google Gemini 3 Flash (AI identification).
--   **Vision**: Jetpack CameraX + ML Kit Barcode Scanning.
--   **Networking**: Retrofit + OkHttp (Discogs API).
--   **Images**: Coil (Efficient remote thumbnail loading).
--   **Code Quality**: ktlint (Consistent formatting).
+-   **UI**: Jetpack Compose with a modular component architecture.
+-   **DI**: **Koin** for modern, lightweight dependency injection.
+-   **Brain**: Google **Gemini 3 Flash** for advanced multimodal image identification.
+-   **Vision**: **Jetpack CameraX** + **ML Kit Barcode Scanning**.
+-   **Networking**: **Retrofit** + **OkHttp** for robust API communication.
+-   **Images**: **Coil** for efficient remote thumbnail loading.
+-   **Storage**: **EncryptedSharedPreferences** for secure credential management.
+-   **Code Quality**: **ktlint** integration for consistent formatting.
 
 ---
 *Built with ❤️ for record lovers. Keep spinning.*
